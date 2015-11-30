@@ -18,7 +18,7 @@ def main():
     if args.verbose:
         print('config file path: %s' % config.get_config_file_path())
 
-    if args.redis and not args.nodb:
+    if args.redis and not args.test:
         config.set_redis_login(args.redis[0], args.redis[1])
 
     mops.app.main(args.test, args.verbose)
