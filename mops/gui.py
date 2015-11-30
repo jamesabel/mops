@@ -39,7 +39,7 @@ class GUI(QWidget):
             group_layout = QGridLayout()
             row = 0
             localipv4 = None
-            for attribute in computers[computer]:
+            for attribute in sorted(computers[computer]):
                 if 'localipv4' in attribute:
                     localipv4 = computers[computer][attribute]
                 group_layout.addWidget(QLabel(attribute), row, 0)

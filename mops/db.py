@@ -34,7 +34,7 @@ class DB:
         """
         r = redis.StrictRedis(self.endpoint, password=self.password, port=self.port)
         d = collections.defaultdict(dict)
-        for key in r.keys():
+        for key in sorted(r.keys()):
             computer_name, sub_key = self._disect_key(key.decode("utf-8"))
             if computer_name and sub_key:
                 d[computer_name][sub_key] = r.get(key).decode("utf-8")
@@ -46,7 +46,7 @@ class DB:
     def dump(self):
         print('==== START DUMP ====')
         r = redis.StrictRedis(self.endpoint, password=self.password, port=self.port)
-        for key in r.keys():
+        for key in sorted(r.keys()):
             val = r.get(key)
             print(key, val)
         print('==== END DUMP ====')

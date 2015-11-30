@@ -27,6 +27,8 @@ def get_metrics():
             volume_name, serial_number, max_len, flags, fs_name = win32api.GetVolumeInformation(disk_path)
         except:
             volume_name = None
+            used = None
+            total = None
         if volume_name:
             prefix = 'disk:' + disk_path[0:1]
             add(prefix + ':volume', volume_name)
