@@ -18,16 +18,20 @@ def get_metrics():
         metrics[key] = value
     add('user', win32api.GetUserName())
     add('localipv4', socket.gethostbyname(socket.gethostname()))
-    add('uptime', str(datetime.timedelta(seconds = uptime.uptime())))
+    add('uptime', str(datetime.timedelta(seconds=uptime.uptime())))
     disks = psutil.disk_partitions(all=True)
     for disk in disks:
         disk_path = disk[0]
-        total, used, free, percent = psutil.disk_usage(disk_path)
-        volume_name, serial_number, max_len, flags, fs_name = win32api.GetVolumeInformation(disk_path)
-        prefix = 'disk:' + disk_path[0:1]
-        add(prefix + ':volume', volume_name)
-        add(prefix + ':used', str(used))
-        add(prefix + ':total', str(total))
+        try:
+            total, used, free, percent = psutil.disk_usage(disk_path)
+            volume_name, serial_number, max_len, flags, fs_name = win32api.GetVolumeInformation(disk_path)
+        except:
+            volume_name = None
+        if volume_name:
+            prefix = 'disk:' + disk_path[0:1]
+            add(prefix + ':volume', volume_name)
+            add(prefix + ':used', str(used))
+            add(prefix + ':total', str(total))
     return metrics
 
 def main():
