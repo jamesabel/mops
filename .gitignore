@@ -1,3 +1,6 @@
 
 .idea/
 venv/
+keys/
+repo_ignore/
+dist/
