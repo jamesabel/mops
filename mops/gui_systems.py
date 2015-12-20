@@ -1,10 +1,9 @@
 
 
 import pprint
-import os
 import subprocess
 
-from PySide.QtGui import QGroupBox, QPushButton, QWidget, QGridLayout, QLabel, QFontMetrics, QLineEdit, QFont
+from PySide.QtGui import *
 
 
 class ConnectButton(QPushButton):
@@ -23,7 +22,7 @@ class ConnectButton(QPushButton):
         subprocess.Popen(command_line, shell=True)
 
 
-class GUI(QWidget):
+class GUI(QDialog):
     def __init__(self, verbose):
         self.verbose = verbose
         super().__init__()
@@ -57,8 +56,4 @@ class GUI(QWidget):
         self.setLayout(grid_layout)
         self.setWindowTitle("mops")
         self.show()
-
-
-
-
-
+        self.exec_()
