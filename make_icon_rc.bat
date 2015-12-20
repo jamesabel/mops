@@ -1,0 +1,1 @@
+C:\Python34\Lib\site-packages\pyside\pyside-rcc -py3 mops\icons.qrc -o mops\icons.py

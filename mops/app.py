@@ -4,7 +4,6 @@
 import sys
 
 from PySide import QtGui
-from PySide import QtCore
 
 import mops.preferences
 import mops.gui_systems
@@ -12,7 +11,6 @@ import mops.gui_preferences
 import mops.db
 import mops.system_metrics
 import mops.util
-
 
 class App:
     def __init__(self, test_mode, verbose):
@@ -60,7 +58,8 @@ class App:
         about.exec_()
 
     def _create_tray_icon(self):
-        self.icon = QtGui.QIcon('mops.ico')
+        import mops.icons
+        self.icon = QtGui.QIcon(QtGui.QPixmap(':mops.png'))
         self.trayIcon = QtGui.QSystemTrayIcon(self.icon)
 
         self.systems_action = QtGui.QAction("&Systems", self.trayIcon, triggered=self._systems)
