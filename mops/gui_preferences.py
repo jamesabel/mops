@@ -4,6 +4,8 @@ from PySide.QtGui import QGroupBox, QPushButton, QWidget, QGridLayout, QLabel, Q
 from PySide.QtCore import QDateTime, Qt
 
 import mops.preferences
+import mops.util
+
 
 class GUIPreferences(QDialog):
     def __init__(self):
@@ -14,8 +16,11 @@ class GUIPreferences(QDialog):
         layout = QGridLayout(self)
 
         end_point, password = preferences.get_redis_login()
+        max_width = mops.util.str_max_width([end_point, password])
         self.endpoint_line_edit = QLineEdit(end_point)
+        self.endpoint_line_edit.setMinimumWidth(max_width)
         self.password_line_edit = QLineEdit(password)
+        self.password_line_edit.setMinimumWidth(max_width)
         layout.addWidget(QLabel('redis endpoint'), 0, 0)
         layout.addWidget(self.endpoint_line_edit, 0, 1)
         layout.addWidget(QLabel('redis password'), 1, 0)
