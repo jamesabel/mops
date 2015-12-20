@@ -2,7 +2,7 @@
 from distutils.core import setup
 import py2exe
 
-setup(console=['mops.py'],
+setup(windows=['mops.py'],
       packages=['mops'],
       options={"py2exe":
           {

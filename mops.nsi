@@ -1,9 +1,9 @@
 # from:
 # http://nsis.sourceforge.net/A_simple_installer_with_start_menu_shortcut_and_uninstaller
 
-!define APPNAME "mops"
-!define COMPANYNAME "abel"
-!define DESCRIPTION "minature ops"
+!define APPNAME mops
+!define COMPANYNAME abel
+!define DESCRIPTION minature_ops
 # These three must be integers
 !define VERSIONMAJOR 0
 !define VERSIONMINOR 0
@@ -53,7 +53,7 @@ section "install"
 	# Files for the install directory - to build the installer, these should be in the same directory as the install script (this file)
 	setOutPath $INSTDIR
 	# Files added here should be removed by the uninstaller (see section "uninstall")
-	file /r "dist"
+	file /r dist\*.*
 	file "*.md"
 	file "*.ico"
 	file "LICENSE"
@@ -67,7 +67,7 @@ section "install"
 	createShortCut "$SMPROGRAMS\${COMPANYNAME}\${APPNAME}.lnk" "$INSTDIR\mops.exe" "" "$INSTDIR\mops.ico"
 
     # run on Windows startup
-	WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Run" "Notepad" "$INSTDIR\mops.exe"
+	WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Run" "mops" "$INSTDIR\mops.exe"
 
 	# Registry information for add/remove programs
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "DisplayName" "${COMPANYNAME} - ${APPNAME} - ${DESCRIPTION}"
@@ -109,10 +109,15 @@ section "uninstall"
 	rmDir "$SMPROGRAMS\${COMPANYNAME}"
 
 	# Remove files
-	RMDir  $INSTDIR\python
-	RMDir  $INSTDIR\mops
-	RMDir  $INSTDIR\icons
-	delete $INSTDIR\*.*
+	delete $INSTDIR\mops.exe
+	delete $INSTDIR\*.dll
+	delete $INSTDIR\*.zip
+	delete $INSTDIR\LICENSE
+	delete $INSTDIR\*.ico
+	delete $INSTDIR\*.md
+	delete $INSTDIR\*.pyd
+
+
 
 	# Always delete uninstaller as the last action
 	delete $INSTDIR\uninstall.exe
