@@ -11,6 +11,7 @@ import mops.gui_systems
 import mops.gui_preferences
 import mops.db
 import mops.system_metrics
+import mops.util
 
 
 class App:
@@ -28,8 +29,8 @@ class App:
         self.app.exec_()
 
     def _systems(self):
-        config = mops.preferences.MopsPreferences()
-        endpoint, password = config.get_redis_login()
+        preferences = mops.preferences.MopsPreferences()
+        endpoint, password = preferences.get_redis_login()
 
         if self.test_mode:
             # use this computer's metrics twice just for testing
@@ -38,9 +39,8 @@ class App:
             db = None
         else:
             if endpoint is None or password is None:
-                gui_config = mops.gui_preferences.GUIPreferences(config)
-                gui_config.show()
-                endpoint, password = gui_config.get_endpoint_and_password()
+                self._preferences()
+                endpoint, password = preferences.get_redis_login()
             db = mops.db.DB(endpoint, password, self.verbose)
             db.set(mops.system_metrics.get_computer_name(), mops.system_metrics.get_metrics())
             computers = db.get()
@@ -51,7 +51,9 @@ class App:
         g.run(computers)
 
     def _preferences(self):
-        pass
+        gui_config = mops.gui_preferences.GUIPreferences()
+        gui_config.show()
+        gui_config.exec_()
 
     def _about(self):
         about = About()
@@ -93,14 +95,11 @@ class About(QtGui.QDialog):
         layout.addWidget(QtGui.QLabel('mops'))
         layout.addWidget(QtGui.QLabel('mini operations tools'))
 
-        min_width = 0
-        for about_string in about_strings:
-            min_width = min(QtGui.QFontMetrics(QtGui.QFont()).width(about_string) * 1.05, min_width)
-
+        max_width = mops.util.str_max_width(about_strings)
         for about_string in about_strings:
             line = QtGui.QLineEdit(about_string)
             line.setReadOnly(True)
-            line.setMinimumWidth(min_width)
+            line.setMinimumWidth(max_width)
             layout.addWidget(line)
 
         self.show()
