@@ -1,7 +1,8 @@
 
 import collections
-import pprint
 import redis
+
+import mops.logger
 
 
 class DB:
@@ -10,9 +11,10 @@ class DB:
         self.password = password
         self.port = 11920
         self.verbose = verbose
+
         if self.verbose:
-            print('endpoint : %s' % endpoint)
-            print('password : %s' % password)
+            mops.logger.log.info('endpoint : %s' % endpoint)
+            mops.logger.log.info('password : %s' % password)
         one_month = 30 * 24 * 60 * 60
         self.expire_time = one_month
 
@@ -24,8 +26,7 @@ class DB:
         for k in metrics:
             full_key = 'computer:' + computer_name + ':' + k
             value = metrics[k]
-            if self.verbose:
-                print('set : %s=%s (ex=%i)' % (full_key, value, self.expire_time))
+            mops.logger.log.debug('set : %s=%s (ex=%i)' % (full_key, value, self.expire_time))
             r.set(full_key, value, ex=self.expire_time)
 
     def get(self):
@@ -38,18 +39,16 @@ class DB:
             computer_name, sub_key = self._disect_key(key.decode("utf-8"))
             if computer_name and sub_key:
                 d[computer_name][sub_key] = r.get(key).decode("utf-8")
-        if self.verbose:
-            print('DB:get():')
-            pprint.pprint(d)
+            mops.logger.log.debug('DB:get():')
+            mops.logger.log.debug(str(d))
         return d
 
     def dump(self):
-        print('==== START DUMP ====')
         r = redis.StrictRedis(self.endpoint, password=self.password, port=self.port)
         for key in sorted(r.keys()):
             val = r.get(key)
-            print(key, val)
-        print('==== END DUMP ====')
+            mops.logger.log.info(key)
+            mops.logger.log.info(val)
 
     def _disect_key(self, full_key):
         """

@@ -4,9 +4,11 @@ import argparse
 import mops.app
 import mops.gui_systems
 import mops.preferences
+import mops.logger
 
 
 def main():
+    mops.logger.init()
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-r', '--redis', nargs=2, help="provide and set redis endpoint and password")
@@ -16,8 +18,8 @@ def main():
     args = parser.parse_args()
 
     config = mops.preferences.MopsPreferences()
-    if args.verbose:
-        print('config file path: %s' % config.get_preferences_file_path())
+
+    mops.logger.log.info('config file path: %s' % config.get_preferences_file_path())
 
     if args.clear:
         config.clear()

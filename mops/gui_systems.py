@@ -1,9 +1,10 @@
 
-
-import pprint
 import subprocess
 
 from PySide.QtGui import *
+
+import mops.logger
+import mops.util
 
 
 class ConnectButton(QPushButton):
@@ -17,8 +18,7 @@ class ConnectButton(QPushButton):
         # http://windows.microsoft.com/en-us/windows/command-line-parameters-remote-desktop-connection#1TC=windows-7
         command_line = 'mstsc.exe'  # os.path.join('c:', os.sep, 'Windows', 'system32', 'mstsc.exe')
         command_line += ' /v:' + self.localipv4
-        if self.verbose:
-            print(command_line)
+        mops.logger.log.info(command_line)
         subprocess.Popen(command_line, shell=True)
 
 
@@ -29,9 +29,6 @@ class GUI(QDialog):
 
     def run(self, computers):
         grid_layout = QGridLayout()
-        if self.verbose:
-            print('GUI:run():')
-            pprint.pprint(computers)
         computer_count = 0
         for computer in computers:
             group_box = QGroupBox()
@@ -44,7 +41,7 @@ class GUI(QDialog):
                 group_layout.addWidget(QLabel(attribute), row, 0)
                 value = QLineEdit(computers[computer][attribute])
                 value.setReadOnly(True)
-                width = QFontMetrics(QFont()).width(computers[computer][attribute]) * 1.05
+                width = mops.util.str_width(computers[computer][attribute])
                 value.setMinimumWidth(width)
                 group_layout.addWidget(value, row, 1)
                 row += 1

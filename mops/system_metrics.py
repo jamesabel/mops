@@ -7,6 +7,8 @@ import win32api
 import psutil
 import uptime
 
+import mops.logger
+
 
 def get_computer_name():
     return platform.node()
@@ -39,7 +41,7 @@ def get_metrics():
 def main():
     metrics = get_metrics()
     for metric in metrics:
-        print(metric, metrics[metric])
+        mops.logger.log.info(str(metric, metrics[metric]))
 
 
 if __name__ == '__main__':
