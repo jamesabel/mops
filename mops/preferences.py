@@ -2,13 +2,13 @@
 import os
 import configparser
 
-import mops.const
+import mops.util
 
 
 class MopsPreferences:
     def __init__(self, preferences_folder_path = None):
         if not preferences_folder_path:
-            preferences_folder_path = os.path.join(os.getenv('APPDATA'), mops.const.company, mops.const.application)
+            preferences_folder_path = mops.util.get_appdata_roaming_folder()
         if not os.path.exists(preferences_folder_path):
             os.makedirs(preferences_folder_path)
         self._preferences_file_path = os.path.join(preferences_folder_path, 'preferences.ini')
@@ -33,7 +33,6 @@ class MopsPreferences:
     def get_redis_login(self):
         endpoint = None
         password = None
-        print(dir(self._preferences))
         if 'redis' in self._preferences:
             redis = self._preferences['redis']
             if 'endpoint' in redis:
@@ -42,29 +41,15 @@ class MopsPreferences:
                 password = redis['password']
         return endpoint, password
 
-    def set_run_on_windows_startup(self, state):
+    def set_run_on_startup(self, state):
         self._preferences['preferences'] = {'runonstartup': state}
         self._write()
 
-    def get_run_on_windows_startup(self):
+    def get_run_on_startup(self):
         state = None
         if 'preferences' in self._preferences:
             preferences = self._preferences['preferences']
             if 'runonstartup' in preferences:
-                state = preferences['runonstartup']
+                state = bool(preferences['runonstartup'])
         return state
 
-
-def _test():
-    c = MopsPreferences('temp')
-    print(os.path.abspath(c.get_preferences_file_path()))
-    c.clear()
-    print(c.get_redis_login())
-    print(c.get_run_on_windows_startup())
-    c.set_redis_login('my_endpoint', 'my_password')
-    c.set_run_on_windows_startup(True)
-    print(c.get_redis_login())
-    print(c.get_run_on_windows_startup())
-
-if __name__ == '__main__':
-    _test()
