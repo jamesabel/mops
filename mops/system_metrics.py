@@ -38,12 +38,4 @@ def get_metrics():
             add(prefix + ':total', str(total))
     return metrics
 
-def main():
-    metrics = get_metrics()
-    for metric in metrics:
-        mops.logger.log.info(str(metric, metrics[metric]))
-
-
-if __name__ == '__main__':
-    main()
 
