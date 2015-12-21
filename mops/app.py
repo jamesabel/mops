@@ -2,6 +2,7 @@
 # TODO: PUT THIS INTO gui_system_tray.py (and perhaps rename that back to app.py)
 
 import sys
+import threading
 
 from PySide import QtGui
 
@@ -11,6 +12,38 @@ import mops.gui_preferences
 import mops.db
 import mops.system_metrics
 import mops.util
+import mops.logger
+
+
+class SystemUpdater(threading.Thread):
+    """
+    runs in the background to update this computer's info
+    """
+    def __init__(self, update_period, verbose):
+        super().__init__()
+        self.update_period = update_period
+        self.verbose = verbose
+        self.exit_event = threading.Event()
+
+    def run(self):
+        mops.logger.log.info('starting SystemUpdater: update_period: %s' % self.update_period)
+        while not self.exit_event.is_set():
+            mops.logger.log.info('SystemUpdater attempting DB update')
+            preferences = mops.preferences.MopsPreferences()
+            endpoint, password = preferences.get_redis_login()
+            if endpoint and password:
+                db = mops.db.DB(endpoint, password, self.verbose)
+                db.set(mops.system_metrics.get_computer_name(), mops.system_metrics.get_metrics())
+            mops.logger.log.info('SystemUpdater waiting for %s seconds' % self.update_period)
+            self.exit_event.wait(self.update_period)
+        mops.logger.log.info('SystemUpdater leaving run()')
+
+    def request_exit(self):
+        self.exit_event.set()
+        self.exit_event.wait(60)
+        if not self.exit_event.is_set():
+            mops.logger.log.warn('exit_event still set')
+
 
 class App:
     def __init__(self, test_mode, verbose):
@@ -22,6 +55,9 @@ class App:
         self.app.setQuitOnLastWindowClosed(False)  # so popup dialogs don't close the system tray icon
 
         self._create_tray_icon()
+        preferences = mops.preferences.MopsPreferences()
+        self.system_updater = SystemUpdater(preferences.get_update_period(), self.verbose)
+        self.system_updater.start()
 
     def exec(self):
         self.app.exec_()
@@ -29,24 +65,22 @@ class App:
     def _systems(self):
         preferences = mops.preferences.MopsPreferences()
         endpoint, password = preferences.get_redis_login()
+        computers = None
 
         if self.test_mode:
             # use this computer's metrics twice just for testing
             computers = {mops.system_metrics.get_computer_name() + '_a': mops.system_metrics.get_metrics(),
                          mops.system_metrics.get_computer_name() + '_b': mops.system_metrics.get_metrics()}
-            db = None
         else:
-            if endpoint is None or password is None:
-                self._preferences()
-                endpoint, password = preferences.get_redis_login()
-            db = mops.db.DB(endpoint, password, self.verbose)
-            db.set(mops.system_metrics.get_computer_name(), mops.system_metrics.get_metrics())
-            computers = db.get()
+            if endpoint and password:
+                db = mops.db.DB(endpoint, password, self.verbose)
+                computers = db.get()
+            else:
+                mops.logger.log.warn('redis login not set')  # todo: pop up a GUI warning message
 
-        if self.verbose and db:
-            db.dump()
-        g = mops.gui_systems.GUI(self.verbose)
-        g.run(computers)
+        if computers:
+            g = mops.gui_systems.GUI(self.verbose)
+            g.run(computers)
 
     def _preferences(self):
         gui_config = mops.gui_preferences.GUIPreferences()
@@ -65,7 +99,7 @@ class App:
         self.systems_action = QtGui.QAction("&Systems", self.trayIcon, triggered=self._systems)
         self.preferences_action = QtGui.QAction("&Preferences", self.trayIcon, triggered=self._preferences)
         self.about_action = QtGui.QAction("&About", self.trayIcon, triggered=self._about)
-        self.quit_action = QtGui.QAction("&Quit", self.trayIcon, triggered=QtGui.qApp.quit)
+        self.quit_action = QtGui.QAction("&Quit", self.trayIcon, triggered=self._quit)
 
         self.trayIconMenu = QtGui.QMenu()
         self.trayIconMenu.addAction(self.systems_action)
@@ -76,6 +110,10 @@ class App:
 
         self.trayIcon.setContextMenu(self.trayIconMenu)
         self.trayIcon.show()
+
+    def _quit(self):
+        self.system_updater.request_exit()
+        QtGui.qApp.quit()
 
 
 class About(QtGui.QDialog):
