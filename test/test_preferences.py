@@ -1,11 +1,12 @@
 
-import os
-
 import mops.preferences
+import mops.logger
 
 
 def test_preferences():
-    c = mops.preferences.MopsPreferences('temp')
+    temp_folder = 'temp'
+    mops.logger.init(temp_folder)
+    c = mops.preferences.MopsPreferences(temp_folder)
     c.clear()
     endpoint = 'my_endpoint'
     password = 'my_password'
