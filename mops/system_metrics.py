@@ -7,6 +7,9 @@ import win32api
 import psutil
 import uptime
 
+"""
+gather system metrics/info
+"""
 
 def get_computer_name():
     return platform.node()
