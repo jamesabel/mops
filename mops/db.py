@@ -6,6 +6,9 @@ import mops.logger
 
 
 class DB:
+    """
+    communicate with the database
+    """
     def __init__(self, endpoint, password, verbose):
         self.endpoint = endpoint
         self.password = password
@@ -14,7 +17,6 @@ class DB:
 
         if self.verbose:
             mops.logger.log.info('endpoint : %s' % endpoint)
-            mops.logger.log.info('password : %s' % password)
         one_month = 30 * 24 * 60 * 60
         self.expire_time = one_month
 
@@ -22,6 +24,7 @@ class DB:
         """
         set the metrics for one computer
         """
+        mops.logger.log.info('DB set')
         r = redis.StrictRedis(self.endpoint, password=self.password, port=self.port)
         for k in metrics:
             full_key = 'computer:' + computer_name + ':' + k
@@ -42,13 +45,6 @@ class DB:
             mops.logger.log.debug('DB:get():')
             mops.logger.log.debug(str(d))
         return d
-
-    def dump(self):
-        r = redis.StrictRedis(self.endpoint, password=self.password, port=self.port)
-        for key in sorted(r.keys()):
-            val = r.get(key)
-            mops.logger.log.info(key)
-            mops.logger.log.info(val)
 
     def _disect_key(self, full_key):
         """
