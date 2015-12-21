@@ -3,15 +3,20 @@ import os
 import configparser
 
 import mops.util
+import mops.logger
 
 
 class MopsPreferences:
+    """
+    read/write to preferences file
+    """
     def __init__(self, preferences_folder_path = None):
         if not preferences_folder_path:
             preferences_folder_path = mops.util.get_appdata_roaming_folder()
         if not os.path.exists(preferences_folder_path):
             os.makedirs(preferences_folder_path)
         self._preferences_file_path = os.path.join(preferences_folder_path, 'preferences.ini')
+        mops.logger.log.info('preferences_file_path: %s' % self._preferences_file_path)
         self._preferences = configparser.ConfigParser()
         self._preferences.read(self._preferences_file_path)
 
@@ -44,6 +49,17 @@ class MopsPreferences:
     def set_run_on_startup(self, state):
         self._preferences['preferences'] = {'runonstartup': state}
         self._write()
+
+    def set_update_period(self, period):
+        self._preferences['preferences'] = {'updateperiod': period}
+
+    def get_update_period(self):
+        update_period = 24 * 60 * 60  # default
+        if 'preferences' in self._preferences:
+            p = self._preferences['preferences']
+            if 'updateperiod' in p:
+                update_period = p['updateperiod']
+        return update_period
 
     def get_run_on_startup(self):
         state = None
