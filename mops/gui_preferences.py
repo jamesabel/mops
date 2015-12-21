@@ -1,13 +1,16 @@
 
-from PySide.QtGui import QGroupBox, QPushButton, QWidget, QGridLayout, QLabel, QFontMetrics, QLineEdit, QFont, \
-    QInputDialog, QDialog, QVBoxLayout, QDateTimeEdit, QDialogButtonBox, QApplication
-from PySide.QtCore import QDateTime, Qt
+from PySide.QtGui import *
+from PySide.QtCore import *
 
 import mops.preferences
 import mops.util
+import mops.logger
 
 
 class GUIPreferences(QDialog):
+    """
+    dialog popup for user preferences
+    """
     def __init__(self):
         super(GUIPreferences, self).__init__()
 
