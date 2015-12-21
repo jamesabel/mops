@@ -7,8 +7,6 @@ import win32api
 import psutil
 import uptime
 
-import mops.logger
-
 
 def get_computer_name():
     return platform.node()
