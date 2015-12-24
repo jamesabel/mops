@@ -33,7 +33,7 @@ class SystemUpdater(threading.Thread):
             endpoint, password = preferences.get_redis_login()
             if endpoint and password:
                 db = mops.db.DB(endpoint, password, self.verbose)
-                db.set(mops.system_metrics.get_computer_name(), mops.system_metrics.get_metrics())
+                db.set(mops.system_metrics.get_metrics())
             mops.logger.log.info('SystemUpdater waiting for %s seconds' % self.update_period)
             self.exit_event.wait(self.update_period)
         mops.logger.log.info('SystemUpdater leaving run()')
@@ -69,8 +69,7 @@ class App:
 
         if self.test_mode:
             # use this computer's metrics twice just for testing
-            computers = {mops.system_metrics.get_computer_name() + '_a': mops.system_metrics.get_metrics(),
-                         mops.system_metrics.get_computer_name() + '_b': mops.system_metrics.get_metrics()}
+            computers = mops.system_metrics.get_metrics()
         else:
             if endpoint and password:
                 db = mops.db.DB(endpoint, password, self.verbose)

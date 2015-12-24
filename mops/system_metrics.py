@@ -11,19 +11,22 @@ import uptime
 gather system metrics/info
 """
 
+
 def get_computer_name():
     return platform.node()
 
 
 def get_metrics():
-    metrics = collections.OrderedDict()
-    def add(key, value):
-        metrics[key] = value
-    add('user', win32api.GetUserName())
-    add('localipv4', socket.gethostbyname(socket.gethostname()))
-    add('uptime', str(datetime.timedelta(seconds=uptime.uptime())))
-    disks = psutil.disk_partitions(all=True)
-    for disk in disks:
+    """
+    metrics for this computer
+    """
+    metrics = {}
+    metrics['user'] = win32api.GetUserName()
+    metrics['localipv4'] = socket.gethostbyname(socket.gethostname())
+    metrics['uptime'] = str(datetime.timedelta(seconds=uptime.uptime()))
+
+    metrics['disk'] = {}
+    for disk in psutil.disk_partitions(all=True):
         disk_path = disk[0]
         try:
             total, used, free, percent = psutil.disk_usage(disk_path)
@@ -33,10 +36,9 @@ def get_metrics():
             used = None
             total = None
         if volume_name:
-            prefix = 'disk:' + disk_path[0:1]
-            add(prefix + ':volume', volume_name)
-            add(prefix + ':used', str(used))
-            add(prefix + ':total', str(total))
-    return metrics
-
-
+            disk_name = disk_path[0]
+            metrics['disk'][disk_name] = {}
+            metrics['disk'][disk_name]['volume'] = volume_name
+            metrics['disk'][disk_name]['used'] = str(used)
+            metrics['disk'][disk_name]['total'] = str(total)
+    return {platform.node(): metrics}

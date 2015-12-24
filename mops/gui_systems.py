@@ -5,6 +5,7 @@ from PySide.QtGui import *
 
 import mops.logger
 import mops.util
+import mops.system_metrics
 
 
 class ConnectButton(QPushButton):
@@ -28,23 +29,35 @@ class GUI(QDialog):
         super().__init__()
 
     def run(self, computers):
+        def add_row(metric, value, row_number):
+            group_layout.addWidget(QLabel(metric), row_number, 0)
+            value_le = QLineEdit(value)
+            value_le.setReadOnly(True)
+            value_le.setMinimumWidth(mops.util.str_width(value))
+            group_layout.addWidget(value_le, row_number, 1)
+
         grid_layout = QGridLayout()
         computer_count = 0
         for computer in computers:
             group_box = QGroupBox()
             group_layout = QGridLayout()
-            row = 0
+            row_number = 0
             localipv4 = None
-            for attribute in sorted(computers[computer]):
-                if 'localipv4' in attribute:
-                    localipv4 = computers[computer][attribute]
-                group_layout.addWidget(QLabel(attribute), row, 0)
-                value = QLineEdit(computers[computer][attribute])
-                value.setReadOnly(True)
-                width = mops.util.str_width(computers[computer][attribute])
-                value.setMinimumWidth(width)
-                group_layout.addWidget(value, row, 1)
-                row += 1
+            metrics = sorted(computers[computer])
+            for metric in metrics:
+                value = computers[computer][metric]
+                if type(value) is str:
+                    if 'localipv4' in metric:
+                        localipv4 = value  # for RDP connect
+                    add_row(metric, value, row_number)
+                    row_number += 1
+                else:
+                    for disk in computers[computer][metric]:
+                        total = computers[computer][metric][disk]['total']
+                        used = computers[computer][metric][disk]['used']
+                        percentage_used = str(100.0 * (float(used)/float(total))) + '%'
+                        add_row(disk + ':', percentage_used, row_number)
+                        row_number += 1
             group_box.setTitle(computer)
             group_layout.addWidget(ConnectButton(localipv4, self.verbose))
             group_box.setLayout(group_layout)
