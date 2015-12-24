@@ -41,4 +41,4 @@ def get_metrics():
             metrics['disk'][disk_name]['volume'] = volume_name
             metrics['disk'][disk_name]['used'] = str(used)
             metrics['disk'][disk_name]['total'] = str(total)
-    return {platform.node(): metrics}
+    return {get_computer_name(): metrics}

@@ -69,7 +69,11 @@ class App:
 
         if self.test_mode:
             # use this computer's metrics twice just for testing
-            computers = mops.system_metrics.get_metrics()
+            cs = mops.system_metrics.get_metrics()
+            computer_name = mops.system_metrics.get_computer_name()
+            computers = {}
+            computers['a'] = cs[computer_name]
+            computers['b'] = cs[computer_name]
         else:
             if endpoint and password:
                 db = mops.db.DB(endpoint, password, self.verbose)
