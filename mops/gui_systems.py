@@ -29,10 +29,14 @@ class GUI(QDialog):
         super().__init__()
 
     def run(self, computers):
-        def add_row(metric, value, row_number):
+        def add_row(metric, value, row_number, color=None):
             group_layout.addWidget(QLabel(metric), row_number, 0)
             value_le = QLineEdit(value)
             value_le.setReadOnly(True)
+            if color:
+                palette = QPalette()
+                palette.setColor(QPalette.Base, QColor(color))
+                value_le.setPalette(palette)
             value_le.setMinimumWidth(mops.util.str_width(value))
             group_layout.addWidget(value_le, row_number, 1)
 
@@ -52,11 +56,21 @@ class GUI(QDialog):
                     add_row(metric, value, row_number)
                     row_number += 1
                 else:
-                    for disk in computers[computer][metric]:
+                    for disk in sorted(computers[computer][metric]):
+                        name = computers[computer][metric][disk]['volume']
                         total = computers[computer][metric][disk]['total']
                         used = computers[computer][metric][disk]['used']
-                        percentage_used = str(100.0 * (float(used)/float(total))) + '%'
-                        add_row(disk + ':', percentage_used, row_number)
+                        used_ratio = float(used)/float(total)
+
+                        color = None
+                        # uses predefined colors:
+                        # https://srinikom.github.io/pyside-docs/PySide/QtGui/QColor.html#PySide.QtGui.QColor
+                        if used_ratio >= 0.9:
+                            color = 'red'
+                        elif used_ratio >= 0.8:
+                            color = 'yellow'
+
+                        add_row(name + ' (' + disk + ':)', '{:.2%}'.format(used_ratio), row_number, color)
                         row_number += 1
             group_box.setTitle(computer)
             group_layout.addWidget(ConnectButton(localipv4, self.verbose))
