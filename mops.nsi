@@ -3,7 +3,7 @@
 
 !define APPNAME mops
 !define COMPANYNAME abel
-!define DESCRIPTION minature_ops
+!define DESCRIPTION mops
 # These three must be integers
 !define VERSIONMAJOR 0
 !define VERSIONMINOR 0
@@ -25,7 +25,7 @@ LicenseData "LICENSE"
 # This will be in the installer/uninstaller's title bar
 Name "${COMPANYNAME} - ${APPNAME}"
 Icon "mops.ico"
-outFile "installer\mops_installer.exe"
+outFile "mops_installers\mops_installer.exe"
 
 !include LogicLib.nsh
 
