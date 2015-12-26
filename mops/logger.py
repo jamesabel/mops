@@ -14,9 +14,10 @@ log_folder = None
 
 def init(log_folder_param=None):
     global fh, ch, log, log_folder
-    log_folder = log_folder_param
 
-    if not log_folder:
+    if log_folder_param:
+        log_folder = log_folder_param  # mainly for testing
+    else:
         log_folder = os.path.join(mops.util.get_appdata_local_folder(), 'log')
 
     if not os.path.exists(log_folder):

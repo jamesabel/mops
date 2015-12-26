@@ -54,6 +54,7 @@ section "install"
 	setOutPath $INSTDIR
 	# Files added here should be removed by the uninstaller (see section "uninstall")
 	file /r dist\*.*
+	file redist\*.*
 	file "*.md"
 	file "*.ico"
 	file "LICENSE"

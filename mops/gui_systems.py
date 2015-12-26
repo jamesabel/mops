@@ -57,21 +57,24 @@ class GUI(QDialog):
                     row_number += 1
                 else:
                     for disk in sorted(computers[computer][metric]):
-                        name = computers[computer][metric][disk]['volume']
-                        total = computers[computer][metric][disk]['total']
-                        used = computers[computer][metric][disk]['used']
-                        used_ratio = float(used)/float(total)
+                        if 'volume' in computers[computer][metric][disk]:
+                            name = computers[computer][metric][disk]['volume']
+                            total = computers[computer][metric][disk]['total']
+                            used = computers[computer][metric][disk]['used']
+                            used_ratio = float(used)/float(total)
 
-                        color = None
-                        # uses predefined colors:
-                        # https://srinikom.github.io/pyside-docs/PySide/QtGui/QColor.html#PySide.QtGui.QColor
-                        if used_ratio >= 0.9:
-                            color = 'red'
-                        elif used_ratio >= 0.8:
-                            color = 'yellow'
+                            color = None
+                            # uses predefined colors:
+                            # https://srinikom.github.io/pyside-docs/PySide/QtGui/QColor.html#PySide.QtGui.QColor
+                            if used_ratio >= 0.9:
+                                color = 'red'
+                            elif used_ratio >= 0.8:
+                                color = 'yellow'
 
-                        add_row(name + ' (' + disk + ':)', '{:.2%}'.format(used_ratio), row_number, color)
-                        row_number += 1
+                            add_row(name + ' (' + disk + ':)', '{:.2%}'.format(used_ratio), row_number, color)
+                            row_number += 1
+                        else:
+                            mops.logger.log.warn('error: %s' % disk)
             group_box.setTitle(computer)
             group_layout.addWidget(ConnectButton(localipv4, self.verbose))
             group_box.setLayout(group_layout)

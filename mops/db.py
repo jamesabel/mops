@@ -71,7 +71,7 @@ class DB:
         set the metrics for one or more computers
         :param metrics: hierarchical dict of metrics
         """
-        mops.logger.log.info('DB set')
+        mops.logger.log.debug('DB set')
         r = redis.StrictRedis(self.endpoint, password=self.password, port=self.port)
         kv_metrics = dict_to_kv(metrics)
         for k in kv_metrics:

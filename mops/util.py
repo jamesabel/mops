@@ -3,6 +3,7 @@ import os
 from PySide.QtGui import *
 
 import mops.const
+import mops.logger
 
 
 def get_appdata_roaming_folder():
@@ -31,11 +32,18 @@ def __get_os_appdata_roaming_folder():
     #
     # I'd like to use winpaths.get_local_appdata() but it doesn't seem to work with Python 3, so I'll
     # rely on the environment variable.
-    return os.environ['APPDATA']
+    appdata_roaming_folder = os.environ['APPDATA']
+    if appdata_roaming_folder is None or len(appdata_roaming_folder) < 1:
+        appdata_roaming_folder = os.path.join(os.sep)  # fallback to root
+        mops.logger.log.warn("os.environ['APPDATA'] not set, falling back to:%s" % appdata_roaming_folder)
+    return appdata_roaming_folder
 
 
 def __get_os_appdata_local_folder():
     # Things stored here: logs, etc.
     # Can be larger files.
-    return os.environ['LOCALAPPDATA']
+    appdata_local_folder =  os.environ['LOCALAPPDATA']
+    if appdata_local_folder is None or len(appdata_local_folder) < 1:
+        appdata_local_folder = os.path.join(os.sep)  # fallback to root
+    return appdata_local_folder
 

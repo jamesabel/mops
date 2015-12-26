@@ -35,9 +35,7 @@ class GUIPreferences(QDialog):
         get_redis_le.setReadOnly(True)
         layout.addWidget(get_redis_le, 4, 1)
 
-        buttons = QDialogButtonBox(
-            QDialogButtonBox.Ok | QDialogButtonBox.Cancel,
-            Qt.Horizontal, self)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons, 5, 1)
@@ -55,6 +53,10 @@ class GUIPreferences(QDialog):
 
 def main():
     import sys
+    import mops.logger
+
+    mops.logger.init()
+
     app = QApplication(sys.argv)
     g = GUIPreferences()
     g.exec_()
