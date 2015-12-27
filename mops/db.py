@@ -42,7 +42,7 @@ def kv_to_dict(input_kv):
         v = input_kv[k]
         o = od
         while ":" in k:
-            l, r = k.split(":", 1)
+            l, r = k.split(':', 1)
             if l not in o:
                 o[l] = {}
             o = o[l]
@@ -55,14 +55,13 @@ class DB:
     """
     communicate with the database
     """
-    def __init__(self, endpoint, password, verbose):
+    def __init__(self, endpoint, password, info_type='system'):
         self.endpoint = endpoint
         self.password = password
+        self.prefix = info_type + ':'
         self.port = 11920
-        self.verbose = verbose
 
-        if self.verbose:
-            mops.logger.log.info('endpoint : %s' % endpoint)
+        mops.logger.log.debug('endpoint : %s' % endpoint)
         one_month = 30 * 24 * 60 * 60
         self.expire_time = one_month
 
@@ -76,7 +75,7 @@ class DB:
         kv_metrics = dict_to_kv(metrics)
         for k in kv_metrics:
             mops.logger.log.debug('db:set:%s:%s (ex=%i)' % (k, kv_metrics[k], self.expire_time))
-            r.set(k, kv_metrics[k], ex=self.expire_time)
+            r.set(self.prefix + k, kv_metrics[k], ex=self.expire_time)
 
     def get(self):
         """
@@ -84,10 +83,13 @@ class DB:
         """
         r = redis.StrictRedis(self.endpoint, password=self.password, port=self.port)
         kv = {}
-        for key in sorted(r.keys()):
+        # It's actually bad to use keys(), even though our data is small.  Eventually we need to create a better way.
+        for key in sorted(r.keys(self.prefix + '*')):
             k = key.decode("utf-8")
             v = r.get(key).decode("utf-8")
             mops.logger.log.debug("db:get:%s:%s" % (k,v))
+            if self.prefix in k:
+                _, k = k.split(self.prefix, 1)  # remove the prefix
             kv[k] = v
         return kv_to_dict(kv)
 

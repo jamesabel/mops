@@ -32,7 +32,7 @@ class SystemUpdater(threading.Thread):
             preferences = mops.preferences.MopsPreferences()
             endpoint, password = preferences.get_redis_login()
             if endpoint and password:
-                db = mops.db.DB(endpoint, password, self.verbose)
+                db = mops.db.DB(endpoint, password)
                 db.set(mops.system_metrics.get_metrics())
             mops.logger.log.info('SystemUpdater waiting for %s seconds' % self.update_period)
             self.exit_event.wait(self.update_period)
@@ -69,25 +69,25 @@ class App:
     def _systems(self):
         preferences = mops.preferences.MopsPreferences()
         endpoint, password = preferences.get_redis_login()
-        computers = None
+        systems = None
 
         if self.test_mode:
             # use this computer's metrics twice just for testing
             cs = mops.system_metrics.get_metrics()
             computer_name = mops.system_metrics.get_computer_name()
-            computers = {}
-            computers['a'] = cs[computer_name]
-            computers['b'] = cs[computer_name]
+            systems = {}
+            systems[computer_name + '_a'] = cs[computer_name]
+            systems[computer_name + '_b'] = cs[computer_name]
         else:
             if endpoint and password:
-                db = mops.db.DB(endpoint, password, self.verbose)
-                computers = db.get()
+                db = mops.db.DB(endpoint, password)
+                systems = db.get()
             else:
                 mops.logger.log.warn('redis login not set')  # todo: pop up a GUI warning message
 
-        if computers:
+        if systems:
             g = mops.gui_systems.GUI(self.verbose)
-            g.run(computers)
+            g.run(systems)
 
     def _preferences(self):
         gui_config = mops.gui_preferences.GUIPreferences()
