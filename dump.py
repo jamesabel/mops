@@ -22,11 +22,12 @@ def main():
     pref = mops.preferences.MopsPreferences()
     print('preferences file path: %s' % pref.get_preferences_file_path())
     endpoint, password = pref.get_redis_login()
-    db = mops.db.DB(endpoint, password)
+    db = mops.db.DB(endpoint, password, info_type='*')
     out_file_path = os.path.join(out_folder, out_file_name)
     print('writing to %s' % out_file_path)
     with open(out_file_path, 'w') as f:
         pprint.pprint(db.get(), f)
+    print('also see log file for raw database data')
 
 if __name__ == '__main__':
     main()
