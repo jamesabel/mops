@@ -41,7 +41,14 @@ class GUI(QDialog):
             group_layout.addWidget(value_le, row_number, 1)
 
         grid_layout = QGridLayout()
-        computer_count = 0
+        system_count = 0
+        disk_counts = set()
+        for system in systems:
+            for metric in systems[system]:
+                if type(systems[system][metric]) is not str:
+                    disk_counts.add(len(systems[system][metric]))
+        max_disks = max(disk_counts)
+
         for system in systems:
             group_box = QGroupBox()
             group_layout = QGridLayout()
@@ -57,7 +64,7 @@ class GUI(QDialog):
                     row_number += 1
                 else:
                     for disk in sorted(systems[system][metric]):
-                        if 'volume' in systems[system][metric][disk]:
+                        if 'volume' in sorted(systems[system][metric][disk]):
                             name = systems[system][metric][disk]['volume']
                             total = systems[system][metric][disk]['total']
                             used = systems[system][metric][disk]['used']
@@ -75,11 +82,16 @@ class GUI(QDialog):
                             row_number += 1
                         else:
                             mops.logger.log.warn('error: %s' % disk)
+                    # spaces so disks for all systems take up the same number of rows
+                    for _ in range(0, max_disks - len(systems[system][metric])):
+                        group_layout.addWidget(QLabel(''))
+                        row_number += 1
             group_box.setTitle(system)
             group_layout.addWidget(ConnectButton(localipv4, self.verbose))
             group_box.setLayout(group_layout)
-            grid_layout.addWidget(group_box, 0, computer_count)
-            computer_count += 1
+            systems_per_row = 4
+            grid_layout.addWidget(group_box, system_count/systems_per_row, system_count % systems_per_row)
+            system_count += 1
         self.setLayout(grid_layout)
         self.setWindowTitle("mops")
         self.show()
