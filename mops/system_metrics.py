@@ -5,6 +5,7 @@ import platform
 import win32api
 import psutil
 import uptime
+import time
 
 import mops.logger
 
@@ -25,6 +26,7 @@ def get_metrics():
     metrics['user'] = win32api.GetUserName()
     metrics['localipv4'] = socket.gethostbyname(socket.gethostname())
     metrics['uptime'] = str(datetime.timedelta(seconds=uptime.uptime()))
+    metrics['lastseen'] = str(time.time())
 
     metrics['disk'] = {}
     disk_partitions = psutil.disk_partitions(all=True)

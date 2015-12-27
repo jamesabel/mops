@@ -1,5 +1,7 @@
 
 import subprocess
+import datetime
+import time
 
 from PySide.QtGui import *
 
@@ -59,7 +61,10 @@ class GUI(QDialog):
                 if type(value) is str:
                     if 'localipv4' in metric:
                         localipv4 = value  # for RDP connect
-                    add_row(metric, value, row_number)
+                    if metric == 'lastseen':
+                        add_row('last seen', str(datetime.timedelta(seconds = time.time() - float(value))), row_number)
+                    else:
+                        add_row(metric, value, row_number)
                     row_number += 1
                 else:
                     for disk in sorted(systems[system][metric], key=str.lower):
