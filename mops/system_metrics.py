@@ -18,7 +18,7 @@ def get_computer_name():
 
 def get_metrics():
     """
-    metrics for this computer
+    metrics for this system
     """
     metrics = {}
     metrics['user'] = win32api.GetUserName()
