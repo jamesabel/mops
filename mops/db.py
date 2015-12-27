@@ -83,8 +83,7 @@ class DB:
         """
         r = redis.StrictRedis(self.endpoint, password=self.password, port=self.port)
         kv = {}
-        # It's actually bad to use keys(), even though our data is small.  Eventually we need to create a better way.
-        for key in sorted(r.keys(self.prefix + '*')):
+        for key in r.scan_iter(self.prefix + '*'):
             k = key.decode("utf-8")
             v = r.get(key).decode("utf-8")
             mops.logger.log.debug("db:get:%s:%s" % (k,v))
