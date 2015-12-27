@@ -137,7 +137,7 @@ class About(QtGui.QDialog):
         self.setLayout(layout)
 
         layout.addWidget(QtGui.QLabel('mops'))
-        layout.addWidget(QtGui.QLabel('my operations tools'))
+        layout.addWidget(QtGui.QLabel('my operations tool'))
 
         max_width = mops.util.str_max_width(about_strings)
         for about_string in about_strings:
