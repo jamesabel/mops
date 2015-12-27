@@ -63,6 +63,12 @@ class GUI(QDialog):
                         localipv4 = value  # for RDP connect
                     if metric == 'lastseen':
                         add_row('last seen', str(datetime.timedelta(seconds = time.time() - float(value))), row_number)
+                    elif metric == 'mem_total' or metric == 'mem_available':
+                        if metric == 'mem_total':
+                            total = int(value)
+                            available = int(systems[system]['mem_available'])
+                            memory_used_percent = '{:.2%}'.format((total - available) / total)
+                            add_row('memory used %', str(memory_used_percent), row_number)
                     else:
                         add_row(metric, value, row_number)
                     row_number += 1

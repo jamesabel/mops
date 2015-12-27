@@ -27,6 +27,9 @@ def get_metrics():
     metrics['localipv4'] = socket.gethostbyname(socket.gethostname())
     metrics['uptime'] = str(datetime.timedelta(seconds=uptime.uptime()))
     metrics['lastseen'] = str(time.time())
+    mem = psutil.virtual_memory()
+    metrics['mem_available'] = mem.available
+    metrics['mem_total'] = mem.total
 
     metrics['disk'] = {}
     disk_partitions = psutil.disk_partitions(all=True)
