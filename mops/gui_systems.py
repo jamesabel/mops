@@ -65,10 +65,17 @@ class GUI(QDialog):
                         add_row('last seen', str(datetime.timedelta(seconds = time.time() - float(value))), row_number)
                     elif metric == 'mem_total' or metric == 'mem_available':
                         if metric == 'mem_total':
-                            total = int(value)
-                            available = int(systems[system]['mem_available'])
-                            memory_used_percent = '{:.2%}'.format((total - available) / total)
-                            add_row('memory used %', str(memory_used_percent), row_number)
+                            total = float(value)
+                            available = float(systems[system]['mem_available'])
+                            memory_used_percent = (total - available) / total
+
+                            color = None
+                            if memory_used_percent >= 0.85:
+                                color = 'red'
+                            elif memory_used_percent >= 0.75:
+                                color = 'yellow'
+
+                            add_row('memory used %', '{:.2%}'.format(memory_used_percent), row_number, color)
                     else:
                         add_row(metric, value, row_number)
                     row_number += 1
