@@ -28,7 +28,7 @@ class GUI(QDialog):
         self.verbose = verbose
         super().__init__()
 
-    def run(self, computers):
+    def run(self, systems):
         def add_row(metric, value, row_number, color=None):
             group_layout.addWidget(QLabel(metric), row_number, 0)
             value_le = QLineEdit(value)
@@ -42,25 +42,25 @@ class GUI(QDialog):
 
         grid_layout = QGridLayout()
         computer_count = 0
-        for computer in computers:
+        for system in systems:
             group_box = QGroupBox()
             group_layout = QGridLayout()
             row_number = 0
             localipv4 = None
-            metrics = sorted(computers[computer])
+            metrics = sorted(systems[system])
             for metric in metrics:
-                value = computers[computer][metric]
+                value = systems[system][metric]
                 if type(value) is str:
                     if 'localipv4' in metric:
                         localipv4 = value  # for RDP connect
                     add_row(metric, value, row_number)
                     row_number += 1
                 else:
-                    for disk in sorted(computers[computer][metric]):
-                        if 'volume' in computers[computer][metric][disk]:
-                            name = computers[computer][metric][disk]['volume']
-                            total = computers[computer][metric][disk]['total']
-                            used = computers[computer][metric][disk]['used']
+                    for disk in sorted(systems[system][metric]):
+                        if 'volume' in systems[system][metric][disk]:
+                            name = systems[system][metric][disk]['volume']
+                            total = systems[system][metric][disk]['total']
+                            used = systems[system][metric][disk]['used']
                             used_ratio = float(used)/float(total)
 
                             color = None
@@ -75,7 +75,7 @@ class GUI(QDialog):
                             row_number += 1
                         else:
                             mops.logger.log.warn('error: %s' % disk)
-            group_box.setTitle(computer)
+            group_box.setTitle(system)
             group_layout.addWidget(ConnectButton(localipv4, self.verbose))
             group_box.setLayout(group_layout)
             grid_layout.addWidget(group_box, 0, computer_count)
