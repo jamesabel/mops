@@ -6,6 +6,7 @@ import mops.logger
 def test_preferences():
     temp_folder = 'temp'
     mops.logger.init(temp_folder)
+
     c = mops.preferences.MopsPreferences(temp_folder)
     c.clear()
     endpoint = 'my_endpoint'
