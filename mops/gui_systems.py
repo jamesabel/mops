@@ -49,13 +49,12 @@ class GUI(QDialog):
                     disk_counts.add(len(systems[system][metric]))
         max_disks = max(disk_counts)
 
-        for system in systems:
+        for system in sorted(systems, key=str.lower):
             group_box = QGroupBox()
             group_layout = QGridLayout()
             row_number = 0
             localipv4 = None
-            metrics = sorted(systems[system])
-            for metric in metrics:
+            for metric in sorted(systems[system]):
                 value = systems[system][metric]
                 if type(value) is str:
                     if 'localipv4' in metric:
@@ -63,7 +62,7 @@ class GUI(QDialog):
                     add_row(metric, value, row_number)
                     row_number += 1
                 else:
-                    for disk in sorted(systems[system][metric]):
+                    for disk in sorted(systems[system][metric], key=str.lower):
                         if 'volume' in sorted(systems[system][metric][disk]):
                             name = systems[system][metric][disk]['volume']
                             total = systems[system][metric][disk]['total']
