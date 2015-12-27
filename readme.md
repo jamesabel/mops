@@ -19,6 +19,7 @@ MOPS is an "operations" tool for your home and small business computers.  It mon
 It provides things such as:
 
 - Disk usage
+- Up time
 - Remote Desktop connectivity (within your LAN)
 
 
