@@ -12,6 +12,8 @@ MOPS Installers:
 
 [Win10](http://bit.ly/1IBDBTu)
 
+(You may get a series of warnings on these links/files, since these point to an executable.  We haven't yet had the time to make take care of this, so for now just click through all of them.)
+
 ## tl;dr ##
 MOPS is a utility for the family or neighborhood "system administrator" to help keep desktop and laptop PCs running smoothly.
 
