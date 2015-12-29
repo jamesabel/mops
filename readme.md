@@ -8,9 +8,9 @@
 
 MOPS Installers:
 
-[Win7/Win8](https://dl.dropboxusercontent.com/u/3154988/mops/mops_installer_win7.exe)
+[Win7/Win8](http://bit.ly/1IBDqHL)
 
-[Win10](https://dl.dropboxusercontent.com/u/3154988/mops/mops_installer_win10.exe)
+[Win10](http://bit.ly/1IBDBTu)
 
 ## tl;dr ##
 MOPS is a utility for the family or neighborhood "system administrator" to help keep desktop and laptop PCs running smoothly.
