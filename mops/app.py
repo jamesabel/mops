@@ -1,15 +1,14 @@
 
-# TODO: PUT THIS INTO gui_system_tray.py (and perhaps rename that back to app.py)
-
 import sys
 import threading
+import time
 
 from PySide import QtGui
 
 import mops.preferences
 import mops.gui_systems
 import mops.gui_preferences
-import mops.db
+import mops.server_db
 import mops.system_metrics
 import mops.util
 import mops.logger
@@ -19,21 +18,23 @@ class SystemUpdater(threading.Thread):
     """
     runs in the background to update this computer's info
     """
-    def __init__(self, update_period, verbose):
+    def __init__(self, update_period, system_metrics, verbose):
         super().__init__()
         self.update_period = update_period
+        self.system_metrics = system_metrics
         self.verbose = verbose
         self.exit_event = threading.Event()
 
     def run(self):
+        time.sleep(5)  # todo: implement an event in system_metrics that we can wait on until all system metrics filled in
         mops.logger.log.info('starting SystemUpdater: update_period: %s' % self.update_period)
         while not self.exit_event.is_set():
             mops.logger.log.info('SystemUpdater attempting DB update')
             preferences = mops.preferences.MopsPreferences()
             endpoint, password = preferences.get_redis_login()
             if endpoint and password:
-                db = mops.db.DB(endpoint, password)
-                db.set(mops.system_metrics.get_metrics())
+                db = mops.server_db.ServerDB(endpoint, password)
+                db.set(self.system_metrics.get_metrics())
             mops.logger.log.info('SystemUpdater waiting for %s seconds' % self.update_period)
             self.exit_event.wait(self.update_period)
         mops.logger.log.info('SystemUpdater leaving run()')
@@ -58,10 +59,16 @@ class App:
         self.app = QtGui.QApplication(sys.argv)  # need this even for the GUIWizard
         self.app.setQuitOnLastWindowClosed(False)  # so popup dialogs don't close the system tray icon
 
+        self.system_metrics = mops.system_metrics.AggregateCollector()
+        self.system_metrics.start()
+
         self._create_tray_icon()
         preferences = mops.preferences.MopsPreferences()
-        self.system_updater = SystemUpdater(preferences.get_update_period(), self.verbose)
-        self.system_updater.start()
+        if self.test_mode:
+            self.system_updater = None
+        else:
+            self.system_updater = SystemUpdater(preferences.get_update_period(), self.system_metrics, self.verbose)
+            self.system_updater.start()
 
     def exec(self):
         self.app.exec_()
@@ -73,14 +80,13 @@ class App:
 
         if self.test_mode:
             # use this computer's metrics twice just for testing
-            cs = mops.system_metrics.get_metrics()
+            systems = self.system_metrics.get_metrics()
             computer_name = mops.system_metrics.get_computer_name()
-            systems = {}
-            systems[computer_name + '_a'] = cs[computer_name]
-            systems[computer_name + '_b'] = cs[computer_name]
+            systems['system'][computer_name + '_a'] = systems['system'][computer_name].copy()
+            systems['system'][computer_name + '_b'] = systems['system'][computer_name].copy()
         else:
             if endpoint and password:
-                db = mops.db.DB(endpoint, password)
+                db = mops.server_db.ServerDB(endpoint, password)
                 systems = db.get()
             else:
                 mops.logger.log.warn('redis login not set')  # todo: pop up a GUI warning message
@@ -119,7 +125,9 @@ class App:
         self.trayIcon.show()
 
     def _quit(self):
-        self.system_updater.request_exit()
+        if self.system_updater:
+            self.system_updater.request_exit()
+        self.system_metrics.request_exit()
         QtGui.qApp.quit()
 
 

@@ -1,5 +1,4 @@
 
-import collections
 import redis
 
 import mops.logger
@@ -37,6 +36,7 @@ def kv_to_dict(input_kv):
     :param input_kv: key/value pairs delimited with a colon
     :return: hierarchical dict
     """
+
     od = {}
     for k in input_kv:
         v = input_kv[k]
@@ -51,19 +51,18 @@ def kv_to_dict(input_kv):
     return od
 
 
-class DB:
+class ServerDB:
     """
     communicate with the database
     """
-    def __init__(self, endpoint, password, info_type='system'):
+    def __init__(self, endpoint, password):
         self.endpoint = endpoint
         self.password = password
-        self.prefix = info_type + ':'
         self.port = 11920
 
         mops.logger.log.debug('endpoint : %s' % endpoint)
-        one_month = 30 * 24 * 60 * 60
-        self.expire_time = one_month
+        one_day = 24 * 60 * 60
+        self.expire_time = one_day
 
     def set(self, metrics):
         """
@@ -75,7 +74,7 @@ class DB:
         kv_metrics = dict_to_kv(metrics)
         for k in kv_metrics:
             mops.logger.log.debug('db:set:%s:%s (ex=%i)' % (k, kv_metrics[k], self.expire_time))
-            r.set(self.prefix + k, kv_metrics[k], ex=self.expire_time)
+            r.set(k, kv_metrics[k], ex=self.expire_time)
 
     def get(self):
         """
@@ -83,12 +82,10 @@ class DB:
         """
         r = redis.StrictRedis(self.endpoint, password=self.password, port=self.port)
         kv = {}
-        for key in r.scan_iter(self.prefix + '*'):
+        for key in r.scan_iter('*'):
             k = key.decode("utf-8")
             v = r.get(key).decode("utf-8")
             mops.logger.log.debug("db:get:%s:%s" % (k,v))
-            if self.prefix in k:
-                _, k = k.split(self.prefix, 1)  # remove the prefix
             kv[k] = v
         return kv_to_dict(kv)
 
