@@ -60,20 +60,29 @@ class GUI(QDialog):
                     category_box.setTitle(category)
                     category_box.setLayout(category_layout)
                     for component in sorted(systems[system][category], key=str.lower):
-                        value = systems[system][category][component]['value']
-                        color = component_color(systems[system][category][component])
-                        if 'Network' in category and 'localipv4' in component:
-                            localipv4 = value  # for RDP connect
-                        category_layout.addWidget(QLabel(component), row_number, 0)
-                        value_le = QLineEdit(value)
-                        value_le.setReadOnly(True)
-                        if color:
-                            palette = QPalette()
-                            palette.setColor(QPalette.Base, QColor(color))
-                            value_le.setPalette(palette)
-                        value_le.setMinimumWidth(mops.util.str_width(value))
-                        category_layout.addWidget(value_le, row_number, 1)
-                        row_number += 1
+                        if type(systems[system][category]) is dict:
+                            if type(systems[system][category][component]) is dict:
+                                if 'value' in systems[system][category][component]:
+                                    value = systems[system][category][component]['value']
+                                    color = component_color(systems[system][category][component])
+                                    if 'Network' in category and 'localipv4' in component:
+                                        localipv4 = value  # for RDP connect
+                                    category_layout.addWidget(QLabel(component), row_number, 0)
+                                    value_le = QLineEdit(value)
+                                    value_le.setReadOnly(True)
+                                    if color:
+                                        palette = QPalette()
+                                        palette.setColor(QPalette.Base, QColor(color))
+                                        value_le.setPalette(palette)
+                                    value_le.setMinimumWidth(mops.util.str_width(value))
+                                    category_layout.addWidget(value_le, row_number, 1)
+                                    row_number += 1
+                                else:
+                                    mops.logger.log.error('no value in: %s' % str(systems[system][category][component]))
+                            else:
+                                mops.logger.log.error('unexpected component: %s' % str(systems[system][category][component]))
+                        else:
+                            mops.logger.log.error('unexpected category: %s' % str(systems[system][category]))
                     system_layout.addWidget(category_box)
                 system_box.setTitle(system)
                 system_layout.addWidget(ConnectButton(localipv4, self.verbose))
