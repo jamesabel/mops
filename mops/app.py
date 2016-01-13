@@ -12,6 +12,7 @@ import mops.server_db
 import mops.system_metrics
 import mops.util
 import mops.logger
+import mops.const
 
 
 class SystemUpdater(threading.Thread):
@@ -52,9 +53,8 @@ class App:
         self.test_mode = test_mode
         self.verbose = verbose
 
-        if self.verbose:
-            mops.logger.log.info('appdata_roaming_folder:%s', mops.util.get_appdata_roaming_folder())
-            mops.logger.log.info('appdata_local_folder:%s', mops.util.get_appdata_local_folder())
+        mops.logger.log.info('appdata_roaming_folder:%s', mops.util.get_appdata_roaming_folder())
+        mops.logger.log.info('appdata_local_folder:%s', mops.util.get_appdata_local_folder())
 
         self.app = QtGui.QApplication(sys.argv)  # need this even for the GUIWizard
         self.app.setQuitOnLastWindowClosed(False)  # so popup dialogs don't close the system tray icon
@@ -127,6 +127,7 @@ class App:
     def _quit(self):
         if self.system_updater:
             self.system_updater.request_exit()
+            self.system_updater.join(mops.const.TIMEOUT)
         self.system_metrics.request_exit()
         QtGui.qApp.quit()
 

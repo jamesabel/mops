@@ -13,6 +13,7 @@ import uptime
 import winstats
 
 import mops.logger
+import mops.const
 
 """
 gather system metrics/info
@@ -206,7 +207,7 @@ class AggregateCollector():
         for collector in self.collectors:
             collector.request_exit()
         for collector in self.collectors:
-            collector.join()
+            collector.join(mops.const.TIMEOUT)
 
     def get_metrics(self):
         aggregate_metrics = {}

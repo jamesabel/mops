@@ -2,6 +2,8 @@
 import argparse
 import logging
 
+from PySide import QtGui
+
 import mops.app
 import mops.gui_systems
 import mops.preferences
@@ -10,6 +12,7 @@ import mops.logger
 
 def main():
     mops.logger.init()
+    mops.logger.log.info('log folder:%s' % mops.logger.get_log_folder())
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--test', action="store_true", help="use test data (don't access the redis DB)")
