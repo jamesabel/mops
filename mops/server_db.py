@@ -1,6 +1,10 @@
 
 import redis
+import json
+import os
+import time
 
+import mops.util
 import mops.logger
 
 
@@ -10,7 +14,7 @@ def dict_to_kv(input_dict, _out=None, _base_string=None):
     :param input_dict: input dict
     :param _out: output list of strings (used during recursion)
     :param _base_string: base of current string (used for recursion)
-    :return: a dict of key'value strings
+    :return: a dict of key-value strings
     """
     if _out is None:
         _out = {}
@@ -74,7 +78,11 @@ class ServerDB:
         kv_metrics = dict_to_kv(metrics)
         for k in kv_metrics:
             mops.logger.log.debug('db:set:%s:%s (ex=%i)' % (k, kv_metrics[k], self.expire_time))
-            r.set(k, kv_metrics[k], ex=self.expire_time)
+            try:
+                r.set(k, kv_metrics[k], ex=self.expire_time)
+            except redis.exceptions.ConnectionError as e:
+                mops.logger.log.warn(str(e))
+                break
 
     def get(self):
         """
@@ -82,11 +90,24 @@ class ServerDB:
         """
         r = redis.StrictRedis(self.endpoint, password=self.password, port=self.port)
         kv = {}
-        for key in r.scan_iter('*'):
-            k = key.decode("utf-8")
-            v = r.get(key).decode("utf-8")
-            mops.logger.log.debug("db:get:%s:%s" % (k,v))
-            kv[k] = v
+        try:
+            keys = [k for k in r.scan_iter('*')]
+        except redis.exceptions.ConnectionError as e:
+            mops.logger.log.warn(str(e))
+            keys = []
+        if len(keys) > 0:
+            for key in keys:
+                k = key.decode("utf-8")
+                v = r.get(key).decode("utf-8")
+                mops.logger.log.debug("db:get:%s:%s" % (k,v))
+                kv[k] = v
+            kv['timestamp'] = time.time()
+            with open(mops.util.get_cache_file_path(), 'w') as f:
+                json.dump(kv, f, indent=2)
+        elif os.path.exists(mops.util.get_cache_file_path()):
+            with open(mops.util.get_cache_file_path()) as f:
+                mops.logger.log.warn('could not access redis, getting values from cache file (%s)' % mops.util.get_cache_file_path())
+                kv = json.load(f)
         return kv_to_dict(kv)
 
 
