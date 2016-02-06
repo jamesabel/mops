@@ -6,8 +6,12 @@ import mops.const
 import mops.logger
 
 
+def get_cache_file_path():
+    return os.path.join(get_appdata_local_folder(), 'cache.json')
+
+
 def get_appdata_roaming_folder():
-    return(os.path.join(__get_os_appdata_roaming_folder(), mops.const.COMPANY, mops.const.APPLICATION))
+    return os.path.join(__get_os_appdata_roaming_folder(), mops.const.COMPANY, mops.const.APPLICATION)
 
 
 def get_appdata_local_folder():
