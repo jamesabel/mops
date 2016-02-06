@@ -7,3 +7,6 @@ dist/
 temp/
 *.bak
 .cache
+redist/
+third_party_installers/
+
