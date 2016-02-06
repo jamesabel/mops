@@ -9,4 +9,7 @@ temp/
 .cache
 redist/
 third_party_installers/
+build/
+__pycache__/
+mops_installers/
 
