@@ -6,3 +6,4 @@ repo_ignore/
 dist/
 temp/
 *.bak
+.cache
