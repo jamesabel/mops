@@ -66,7 +66,8 @@ class ServerDB:
 
         mops.logger.log.debug('endpoint : %s' % endpoint)
         one_day = 24 * 60 * 60
-        self.expire_time = one_day
+        one_month = one_day * 30
+        self.expire_time = one_month
 
     def set(self, metrics):
         """
