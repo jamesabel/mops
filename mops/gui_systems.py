@@ -1,5 +1,7 @@
 
 import subprocess
+import time
+import datetime
 
 from PySide.QtGui import *
 
@@ -67,6 +69,8 @@ class GUI(QDialog):
                                     color = component_color(systems[system][category][component])
                                     if 'Network' in category and 'localipv4' in component:
                                         localipv4 = value  # for RDP connect
+                                    if 'last seen' in component.lower():
+                                        value = time_to_str(value)
                                     category_layout.addWidget(QLabel(component), row_number, 0)
                                     value_le = QLineEdit(value)
                                     value_le.setReadOnly(True)
@@ -91,8 +95,16 @@ class GUI(QDialog):
                 top_level_layout.addWidget(system_box, system_count/systems_per_row, system_count % systems_per_row)
                 system_count += 1
             self.setLayout(top_level_layout)
-            self.setWindowTitle("mops")
+            self.setWindowTitle("Last DB update %s" % time_to_str(systems_input['timestamp']))
             self.show()
             self.exec_()
         else:
             mops.logger.log.error('system not found')
+
+
+def time_to_str(tv):
+    t = time.gmtime(int(float(tv)))
+    dt = datetime.datetime(year=t.tm_year, month=t.tm_mon, day=t.tm_mday, hour=t.tm_hour, minute=t.tm_min, second=t.tm_sec)
+    dtn = datetime.datetime.utcnow()
+    s = "%s (%s ago)" % (time.strftime("%c", t), str(dtn - dt))
+    return s
