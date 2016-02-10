@@ -103,8 +103,10 @@ class GUI(QDialog):
 
 
 def time_to_str(tv):
-    t = time.gmtime(int(float(tv)))
-    dt = datetime.datetime(year=t.tm_year, month=t.tm_mon, day=t.tm_mday, hour=t.tm_hour, minute=t.tm_min, second=t.tm_sec)
+    int_t = int(float(tv))
+    gmt_t = time.gmtime(int_t)
+    local_t = time.localtime(int_t)
+    dt = datetime.datetime(year=gmt_t.tm_year, month=gmt_t.tm_mon, day=gmt_t.tm_mday, hour=gmt_t.tm_hour, minute=gmt_t.tm_min, second=gmt_t.tm_sec)
     dtn = datetime.datetime.utcnow()
-    s = "%s (%s ago)" % (time.strftime("%c", t), str(dtn - dt))
+    s = "%s (%s ago)" % (time.strftime("%c", local_t), str(dtn - dt))
     return s
