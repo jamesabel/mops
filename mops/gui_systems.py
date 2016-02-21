@@ -91,7 +91,7 @@ class GUI(QDialog):
                 system_box.setTitle(system)
                 system_layout.addWidget(ConnectButton(localipv4, self.verbose))
                 system_box.setLayout(system_layout)
-                systems_per_row = 4
+                systems_per_row = 8 # 4 todo: make this a configuration option
                 top_level_layout.addWidget(system_box, system_count/systems_per_row, system_count % systems_per_row)
                 system_count += 1
             self.setLayout(top_level_layout)
