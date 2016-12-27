@@ -3,7 +3,8 @@ import subprocess
 import time
 import datetime
 
-from PySide.QtGui import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QPushButton, QDialog, QGridLayout, QGroupBox, QLineEdit, QLabel
 
 import mops.logger
 import mops.util
@@ -18,6 +19,7 @@ def component_color(component):
         elif component['severity'] == 'medium':
             color = 'yellow'
     return color
+
 
 class ConnectButton(QPushButton):
     def __init__(self, localipv4, verbose):

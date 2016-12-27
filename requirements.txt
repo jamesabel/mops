@@ -2,3 +2,5 @@ redis
 psutil
 uptime
 winstats
+appdirs
+PyQt5

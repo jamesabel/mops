@@ -1,9 +1,11 @@
 
 import os
 import configparser
+import appdirs
 
 import mops.util
 import mops.logger
+import mops.const
 
 
 class MopsPreferences:
@@ -12,7 +14,7 @@ class MopsPreferences:
     """
     def __init__(self, preferences_folder_path = None):
         if not preferences_folder_path:
-            preferences_folder_path = mops.util.get_appdata_roaming_folder()
+            preferences_folder_path = appdirs.user_config_dir(mops.const.APPLICATION, mops.const.COMPANY)
         if not os.path.exists(preferences_folder_path):
             os.makedirs(preferences_folder_path)
         self._preferences_file_path = os.path.join(preferences_folder_path, 'preferences.ini')

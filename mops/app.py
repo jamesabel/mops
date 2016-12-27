@@ -3,7 +3,8 @@ import sys
 import threading
 import time
 
-from PySide import QtGui
+from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtWidgets import QDialog, QApplication, QSystemTrayIcon, QAction, QMenu, QLabel, QVBoxLayout, QLineEdit
 
 import mops.preferences
 import mops.gui_systems
@@ -53,10 +54,7 @@ class App:
         self.test_mode = test_mode
         self.verbose = verbose
 
-        mops.logger.log.info('appdata_roaming_folder:%s', mops.util.get_appdata_roaming_folder())
-        mops.logger.log.info('appdata_local_folder:%s', mops.util.get_appdata_local_folder())
-
-        self.app = QtGui.QApplication(sys.argv)  # need this even for the GUIWizard
+        self.app = QApplication(sys.argv)  # need this even for the GUIWizard
         self.app.setQuitOnLastWindowClosed(False)  # so popup dialogs don't close the system tray icon
 
         self.system_metrics = mops.system_metrics.AggregateCollector()
@@ -106,15 +104,15 @@ class App:
 
     def _create_tray_icon(self):
         import mops.icons
-        self.icon = QtGui.QIcon(QtGui.QPixmap(':mops.png'))
-        self.trayIcon = QtGui.QSystemTrayIcon(self.icon)
+        self.icon = QIcon(QPixmap(':mops.png'))
+        self.trayIcon = QSystemTrayIcon(self.icon)
 
-        self.systems_action = QtGui.QAction("&Systems", self.trayIcon, triggered=self._systems)
-        self.preferences_action = QtGui.QAction("&Preferences", self.trayIcon, triggered=self._preferences)
-        self.about_action = QtGui.QAction("&About", self.trayIcon, triggered=self._about)
-        self.quit_action = QtGui.QAction("&Quit", self.trayIcon, triggered=self._quit)
+        self.systems_action = QAction("&Systems", self.trayIcon, triggered=self._systems)
+        self.preferences_action = QAction("&Preferences", self.trayIcon, triggered=self._preferences)
+        self.about_action = QAction("&About", self.trayIcon, triggered=self._about)
+        self.quit_action = QAction("&Quit", self.trayIcon, triggered=self._quit)
 
-        self.trayIconMenu = QtGui.QMenu()
+        self.trayIconMenu = QMenu()
         self.trayIconMenu.addAction(self.systems_action)
         self.trayIconMenu.addAction(self.preferences_action)
         self.trayIconMenu.addSeparator()
@@ -129,10 +127,10 @@ class App:
             self.system_updater.request_exit()
             self.system_updater.join(mops.const.TIMEOUT)
         self.system_metrics.request_exit()
-        QtGui.qApp.quit()
+        self.app.quit()
 
 
-class About(QtGui.QDialog):
+class About(QDialog):
     """
     Make an about box that the user can copy the text from
     """
@@ -142,15 +140,15 @@ class About(QtGui.QDialog):
         about_strings = ['www.abel.co', 'http://github.com/jamesabel/mops']
         self.setWindowTitle('mops')
 
-        layout = QtGui.QVBoxLayout(self)
+        layout = QVBoxLayout(self)
         self.setLayout(layout)
 
-        layout.addWidget(QtGui.QLabel('mops'))
-        layout.addWidget(QtGui.QLabel('my operations tool'))
+        layout.addWidget(QLabel('mops'))
+        layout.addWidget(QLabel('my operations tool'))
 
         max_width = mops.util.str_max_width(about_strings)
         for about_string in about_strings:
-            line = QtGui.QLineEdit(about_string)
+            line = QLineEdit(about_string)
             line.setReadOnly(True)
             line.setMinimumWidth(max_width)
             layout.addWidget(line)

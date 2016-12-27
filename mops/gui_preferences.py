@@ -1,6 +1,6 @@
 
-from PySide.QtGui import *
-from PySide.QtCore import *
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QDialog, QGridLayout, QLineEdit, QLabel, QDialogButtonBox, QApplication
 
 import mops.preferences
 import mops.util

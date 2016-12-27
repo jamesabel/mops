@@ -2,7 +2,7 @@
 import argparse
 import logging
 
-from PySide import QtGui
+from PyQt5 import QtGui
 
 import mops.app
 import mops.gui_systems
@@ -20,6 +20,7 @@ def main():
     args = parser.parse_args()
 
     if args.verbose:
+        print('log folder : %s' % mops.logger.get_log_folder())
         mops.logger.set_file_log_level(logging.DEBUG)
 
     app = mops.app.App(args.test, args.verbose)

@@ -1,5 +1,6 @@
 
 import os
+import appdirs
 import logging
 import logging.handlers
 
@@ -18,7 +19,7 @@ def init(log_folder_param=None):
     if log_folder_param:
         log_folder = log_folder_param  # mainly for testing
     else:
-        log_folder = os.path.join(mops.util.get_appdata_local_folder(), 'log')
+        log_folder = calculate_log_folder()
 
     if not os.path.exists(log_folder):
         os.makedirs(log_folder)
@@ -58,3 +59,6 @@ def set_file_log_level(new_level):
 
 def set_console_log_level(new_level):
     ch.setLevel(new_level)
+
+def calculate_log_folder():
+    return os.path.join(appdirs.user_log_dir(mops.const.APPLICATION, mops.const.COMPANY))

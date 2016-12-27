@@ -5,12 +5,13 @@ import platform
 import time
 import threading
 import multiprocessing
-
-import win32api
 import psutil
 import uptime
+import getpass
 
-import winstats
+if platform.system() == 'Windows':
+    import winstats
+    import win32api
 
 import mops.logger
 import mops.const
@@ -91,28 +92,31 @@ class ProcessorCollector(Collector):
             counters.append(r'\Processor(' + str(processor) + r')\% Processor Time')
             fmts.append('double')
         delay = int((self.period_seconds * 1000)/2)  # take the "second snapshot" in the middle of the period
-        sample = winstats.get_perf_data(counters, fmts=fmts, delay=delay)
+        if platform.system() == 'Windows':
+            sample = winstats.get_perf_data(counters, fmts=fmts, delay=delay)
 
-        mops.logger.log.debug('winstats.get_perf_data:%s' % str(sample))
+            mops.logger.log.debug('winstats.get_perf_data:%s' % str(sample))
 
-        # when Processor Queue Length (PQL) is large, it is usually opportunity for more cores
-        self.processor_queue_length_sum += sample[0]
-        pql_avg = float(self.processor_queue_length_sum)/float(self.sample_count)
-        pql_severity = ratio_to_severity_level(pql_avg, 1.0, 0.5)
-        self.metrics['Average PQL'] = {'value': str(pql_avg), 'severity': pql_severity}
+            # when Processor Queue Length (PQL) is large, it is usually opportunity for more cores
+            self.processor_queue_length_sum += sample[0]
+            pql_avg = float(self.processor_queue_length_sum)/float(self.sample_count)
+            pql_severity = ratio_to_severity_level(pql_avg, 1.0, 0.5)
+            self.metrics['Average PQL'] = {'value': str(pql_avg), 'severity': pql_severity}
 
-        # Sum processor activity across all processors - this is relative to 'how much of a single processor' is being
-        # used.  Note that this is scaled so 1.0 means we're using one processor's worth, 2.0 is 2 processors, etc.
-        self.processor_sum_sum += sum(sample[1:])/100.0
-        processor_sum_avg = float(self.processor_sum_sum)/float(self.sample_count)
-        self.metrics['Average Load (number of processors)'] = {'value': '{:.3}'.format(processor_sum_avg)}
+            # Sum processor activity across all processors - this is relative to 'how much of a single processor' is being
+            # used.  Note that this is scaled so 1.0 means we're using one processor's worth, 2.0 is 2 processors, etc.
+            self.processor_sum_sum += sum(sample[1:])/100.0
+            processor_sum_avg = float(self.processor_sum_sum)/float(self.sample_count)
+            self.metrics['Average Load (number of processors)'] = {'value': '{:.3}'.format(processor_sum_avg)}
 
-        # Determine how often one processor is saturated.  Note that due to core migration, even if a single
-        # thread is running continually it will appear across all core (unless it is affinitized).
-        self.processor_max_sum += max(sample[1:])
-        proc_avg_max = (float(self.processor_max_sum)/float(self.sample_count))/100.0
-        proc_avg_max_severity = ratio_to_severity_level(proc_avg_max, 85.0, 75.0)
-        self.metrics['Average Max Processor Load'] = {'value': '{:.1%}'.format(proc_avg_max), 'severity': proc_avg_max_severity}
+            # Determine how often one processor is saturated.  Note that due to core migration, even if a single
+            # thread is running continually it will appear across all core (unless it is affinitized).
+            self.processor_max_sum += max(sample[1:])
+            proc_avg_max = (float(self.processor_max_sum)/float(self.sample_count))/100.0
+            proc_avg_max_severity = ratio_to_severity_level(proc_avg_max, 85.0, 75.0)
+            self.metrics['Average Max Processor Load'] = {'value': '{:.1%}'.format(proc_avg_max), 'severity': proc_avg_max_severity}
+        else:
+            mops.logger.log.info('platform %s not yet fully supported' % platform.system())
 
 
 class DiskCollector(Collector):
@@ -161,8 +165,10 @@ class NetworkCollector(Collector):
         self.category = 'Network'
 
     def take_sample(self):
-        self.metrics['localipv4'] = {'value': socket.gethostbyname(socket.gethostname())}
-
+        try:
+            self.metrics['localipv4'] = {'value': socket.gethostbyname(socket.gethostname())}
+        except socket.gaierror as e:
+            mops.logger.log.warning(str(e))
 
 class SystemCollector(Collector):
     def __init__(self):
@@ -184,7 +190,7 @@ class SystemCollector(Collector):
         self.metrics['Memory'] = {'value': '{:.1%}'.format(mem_used_ratio), 'severity':severity, 'used': str(mem.used),
                                   'total': str(mem.total)}
 
-        self.metrics['User'] = {'value': win32api.GetUserName()}
+        self.metrics['User'] = {'value': getpass.getuser()}
         self.metrics['Up time'] = {'value': str(datetime.timedelta(seconds=uptime.uptime()))}
         self.metrics['CPU count'] = {'value': str(multiprocessing.cpu_count())}
         self.metrics['Last seen'] = {'value': str(time.time())}  # client display calculates time delta from this

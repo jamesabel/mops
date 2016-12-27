@@ -13,3 +13,4 @@ build/
 __pycache__/
 mops_installers/
 
+*.tmp
